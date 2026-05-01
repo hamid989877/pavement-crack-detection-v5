@@ -32,6 +32,10 @@ function showMessage(target, text, tone = "") {
   target.dataset.tone = tone;
 }
 
+function isPagesPreview() {
+  return window.location.hostname.endsWith("github.io");
+}
+
 async function apiError(response) {
   try {
     const payload = await response.json();
@@ -142,6 +146,9 @@ function setupImageForm() {
     showMessage(message, "Running your model on the image...");
 
     try {
+      if (isPagesPreview()) {
+        throw new Error("GitHub Pages is a visual preview. Run the Python backend locally for YOLO detection.");
+      }
       const response = await fetch(`/api/detect/image?conf=${conf}&imgsz=${imgsz}`, {
         method: "POST",
         body: formData,
@@ -185,6 +192,9 @@ function setupVideoForm() {
     showMessage(message, "Processing video. Longer clips can take a while...");
 
     try {
+      if (isPagesPreview()) {
+        throw new Error("GitHub Pages is a visual preview. Run the Python backend locally for YOLO detection.");
+      }
       const response = await fetch(
         `/api/detect/video?conf=${conf}&imgsz=${imgsz}&max_frames=${maxFrames}`,
         {

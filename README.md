@@ -48,3 +48,4 @@ A small website for presenting a trained YOLO project and running detections wit
 - Generated videos are written to `outputs/`.
 - Model files are ignored by git because `.pt` files can be large. Use Git LFS or a release asset if you want to store the model in GitHub.
 - The API loads the model once and reuses it for image and video requests.
+- GitHub Pages deploys the static UI preview from `static/`. The upload controls need the Python backend to run real YOLO detection.

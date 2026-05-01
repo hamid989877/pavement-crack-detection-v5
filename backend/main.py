@@ -113,13 +113,28 @@ def home() -> FileResponse:
     return page_response("index.html")
 
 
+@app.get("/index.html")
+def home_file() -> FileResponse:
+    return page_response("index.html")
+
+
 @app.get("/image")
 def image_page() -> FileResponse:
     return page_response("image.html")
 
 
+@app.get("/image.html")
+def image_file() -> FileResponse:
+    return page_response("image.html")
+
+
 @app.get("/video")
 def video_page() -> FileResponse:
+    return page_response("video.html")
+
+
+@app.get("/video.html")
+def video_file() -> FileResponse:
     return page_response("video.html")
 
 
