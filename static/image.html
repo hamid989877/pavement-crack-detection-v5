@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Image Detection | YOLO Vision Lab</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <script defer src="/assets/app.js"></script>
+  </head>
+  <body data-page="image">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="YOLO Vision Lab home">
+        <span class="brand-mark"></span>
+        <span>YOLO Vision Lab</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="/">Project</a>
+        <a href="/image" aria-current="page">Image Detection</a>
+        <a href="/video">Video Detection</a>
+      </nav>
+    </header>
+
+    <main class="tool-page">
+      <section class="tool-intro">
+        <p class="eyebrow">Image Detection</p>
+        <h1>Upload an image for object detection</h1>
+      </section>
+
+      <section class="tool-layout">
+        <form class="control-panel" id="image-form">
+          <label class="file-drop" for="image-file">
+            <span class="file-drop-title">Choose image</span>
+            <span class="file-drop-meta" id="image-file-name">JPG, PNG, WebP, or BMP</span>
+            <input id="image-file" name="file" type="file" accept="image/*" required>
+          </label>
+
+          <div class="field-row">
+            <label for="image-conf">Confidence</label>
+            <div class="range-wrap">
+              <input id="image-conf" type="range" min="0.05" max="0.95" step="0.05" value="0.25">
+              <output id="image-conf-output">0.25</output>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <label for="image-size">Image size</label>
+            <select id="image-size">
+              <option value="640" selected>640 px</option>
+              <option value="960">960 px</option>
+              <option value="1280">1280 px</option>
+            </select>
+          </div>
+
+          <button class="button primary full" type="submit">Run Detection</button>
+          <p class="form-message" id="image-message" role="status"></p>
+        </form>
+
+        <div class="result-panel">
+          <div class="result-media empty" id="image-preview">
+            <span>Annotated image will appear here</span>
+          </div>
+          <div class="result-summary">
+            <div>
+              <p class="metric-label">Detections</p>
+              <p class="metric-value" id="image-count">0</p>
+            </div>
+            <div>
+              <p class="metric-label">Image Size</p>
+              <p class="metric-value" id="image-dimensions">-</p>
+            </div>
+          </div>
+          <div class="table-shell">
+            <table>
+              <thead>
+                <tr>
+                  <th>Label</th>
+                  <th>Confidence</th>
+                  <th>Box</th>
+                </tr>
+              </thead>
+              <tbody id="image-detections">
+                <tr>
+                  <td colspan="3">No detections yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

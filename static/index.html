@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>YOLO Vision Lab</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <script defer src="/assets/app.js"></script>
+  </head>
+  <body data-page="home">
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="YOLO Vision Lab home">
+        <span class="brand-mark"></span>
+        <span>YOLO Vision Lab</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="/" aria-current="page">Project</a>
+        <a href="/image">Image Detection</a>
+        <a href="/video">Video Detection</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero-shell">
+        <div class="hero-copy">
+          <p class="eyebrow">YOLO AI Detection Platform</p>
+          <h1>YOLO Vision Lab</h1>
+          <p class="lead">
+            A gradient-style project site for presenting your trained model, running object
+            detection on uploaded images, and processing uploaded videos with the same AI pipeline.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="/image">Try Image Detection</a>
+            <a class="button secondary" href="/video">Upload Video</a>
+          </div>
+          <div class="signal-row" aria-label="Project highlights">
+            <span>best.pt ready</span>
+            <span>Image inference</span>
+            <span>Video inference</span>
+          </div>
+        </div>
+        <div class="vision-stage" aria-label="Animated detection preview">
+          <canvas id="vision-canvas" width="900" height="620"></canvas>
+          <div class="stage-status">
+            <span class="pulse-dot"></span>
+            <span>Model preview</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-band">
+        <div class="section-heading">
+          <p class="eyebrow">Project Details</p>
+          <h2>Built around your trained <span>best.pt</span> model</h2>
+        </div>
+        <div class="detail-grid">
+          <article class="detail-card">
+            <span class="card-index">01</span>
+            <h3>Purpose</h3>
+            <p>
+              This project turns a YOLO training result into a usable browser workflow so a user
+              can test the model without touching the command line.
+            </p>
+          </article>
+          <article class="detail-card">
+            <span class="card-index">02</span>
+            <h3>Image workflow</h3>
+            <p>
+              Users upload a single image, choose confidence and image size settings, then receive
+              an annotated result with a detection table.
+            </p>
+          </article>
+          <article class="detail-card">
+            <span class="card-index">03</span>
+            <h3>Video workflow</h3>
+            <p>
+              Users upload a video and the backend runs frame-by-frame inference, returning a
+              processed video with bounding boxes.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-band light">
+        <div class="about-layout">
+          <div>
+            <p class="eyebrow">About The Project</p>
+            <h2>From training artifact to practical AI demo</h2>
+          </div>
+          <p>
+            The site is designed for a YOLO model trained in Ultralytics format. The backend loads
+            the model once, reuses it for image and video inference, and keeps generated outputs in
+            a local folder for easy review during development.
+          </p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
