@@ -1,4 +1,4 @@
-# YOLO Vision Lab
+# Pavement Crack Detection V5
 
 A small website for presenting a trained YOLO project and running detections with a custom `best.pt` model.
 
