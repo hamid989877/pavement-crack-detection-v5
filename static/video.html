@@ -52,17 +52,41 @@
           </div>
 
           <div class="field-row">
+            <label for="frame-stride">Detection speed</label>
+            <select id="frame-stride">
+              <option value="1">Every frame</option>
+              <option value="2" selected>Fast, every 2 frames</option>
+              <option value="3">Faster, every 3 frames</option>
+              <option value="5">Very fast, every 5 frames</option>
+            </select>
+          </div>
+
+          <div class="field-row">
             <label for="max-frames">Frame limit</label>
             <input id="max-frames" type="number" min="0" max="20000" value="0">
           </div>
 
-          <button class="button primary full" type="submit">Process Video</button>
+          <button class="button primary full" type="submit">Start Live Detection</button>
           <p class="form-message" id="video-message" role="status"></p>
         </form>
 
         <div class="result-panel">
-          <div class="result-media empty" id="video-preview">
-            <span>Processed video will appear here</span>
+          <div class="live-video-grid">
+            <div class="video-slot">
+              <p class="slot-label">Uploaded video</p>
+              <div class="result-media compact empty" id="source-preview">
+                <span>Upload preview will appear here</span>
+              </div>
+            </div>
+            <div class="video-slot">
+              <p class="slot-label">Live detection and saved result</p>
+              <div class="result-media compact empty" id="video-preview">
+                <span>Live detection will appear here</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-track" aria-label="Video detection progress">
+            <span id="video-progress-fill"></span>
           </div>
           <div class="result-summary three">
             <div>
@@ -77,6 +101,9 @@
               <p class="metric-label">Video Size</p>
               <p class="metric-value" id="video-dimensions">-</p>
             </div>
+          </div>
+          <div class="final-actions" id="video-actions" hidden>
+            <a class="button secondary" id="video-download" href="#" download>Download Saved Video</a>
           </div>
         </div>
       </section>

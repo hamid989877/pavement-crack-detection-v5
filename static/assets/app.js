@@ -176,27 +176,104 @@ function setupVideoForm() {
   const button = form.querySelector("button");
   const message = qs("#video-message");
   const preview = qs("#video-preview");
+  const sourcePreview = qs("#source-preview");
+  const actions = qs("#video-actions");
+  const download = qs("#video-download");
+  const progressFill = qs("#video-progress-fill");
+  const fileInput = qs("#video-file");
+  let pollTimer = null;
+  let sourceUrl = null;
+
+  function clearPoll() {
+    if (pollTimer) {
+      window.clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  }
+
+  function showSourceVideo(file) {
+    if (!sourcePreview || !file) return;
+    if (sourceUrl) URL.revokeObjectURL(sourceUrl);
+    sourceUrl = URL.createObjectURL(file);
+    sourcePreview.classList.remove("empty");
+    sourcePreview.innerHTML = `<video controls muted src="${sourceUrl}"></video>`;
+  }
+
+  function updateVideoMetrics(payload) {
+    qs("#video-frames").textContent = payload.total_frames
+      ? `${payload.frames} / ${payload.total_frames}`
+      : payload.frames;
+    qs("#video-count").textContent = payload.total_detections;
+    qs("#video-dimensions").textContent = `${payload.width} x ${payload.height}`;
+    if (progressFill) {
+      const progress = Math.max(0, Math.min(1, payload.progress || 0));
+      progressFill.style.width = `${Math.round(progress * 100)}%`;
+    }
+  }
+
+  async function pollVideoJob(statusUrl) {
+    const response = await fetch(statusUrl);
+    if (!response.ok) throw new Error(await apiError(response));
+    const payload = await response.json();
+    updateVideoMetrics(payload);
+
+    if (payload.status === "completed") {
+      clearPoll();
+      preview.classList.remove("empty");
+      preview.innerHTML = `<video controls src="${payload.video_url}?t=${Date.now()}"></video>`;
+      if (download && actions) {
+        download.href = payload.video_url;
+        actions.hidden = false;
+      }
+      showMessage(message, "Detection complete. The saved video is ready.", "success");
+      setBusy(button, false, "Start Live Detection");
+      return;
+    }
+
+    if (payload.status === "error") {
+      clearPoll();
+      showMessage(message, payload.error || "Video processing failed.", "error");
+      setBusy(button, false, "Start Live Detection");
+      return;
+    }
+
+    showMessage(
+      message,
+      `Live detection is running. Analyzed ${payload.analyzed_frames} frame batches...`
+    );
+  }
+
+  fileInput?.addEventListener("change", () => {
+    const file = fileInput.files?.[0];
+    if (file) showSourceVideo(file);
+  });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const file = qs("#video-file").files?.[0];
+    const file = fileInput.files?.[0];
     if (!file) return;
+
+    clearPoll();
+    showSourceVideo(file);
+    if (actions) actions.hidden = true;
+    if (progressFill) progressFill.style.width = "0%";
 
     const formData = new FormData();
     formData.append("file", file);
     const conf = qs("#video-conf").value;
     const imgsz = qs("#video-size").value;
     const maxFrames = qs("#max-frames").value || 0;
+    const frameStride = qs("#frame-stride").value || 2;
 
-    setBusy(button, true, "Process Video");
-    showMessage(message, "Processing video. Longer clips can take a while...");
+    setBusy(button, true, "Start Live Detection");
+    showMessage(message, "Uploading video and starting live detection...");
 
     try {
       if (isPagesPreview()) {
         throw new Error("GitHub Pages is a visual preview. Run the Python backend locally for YOLO detection.");
       }
       const response = await fetch(
-        `/api/detect/video?conf=${conf}&imgsz=${imgsz}&max_frames=${maxFrames}`,
+        `/api/detect/video?conf=${conf}&imgsz=${imgsz}&max_frames=${maxFrames}&frame_stride=${frameStride}`,
         {
           method: "POST",
           body: formData,
@@ -206,15 +283,20 @@ function setupVideoForm() {
       const payload = await response.json();
 
       preview.classList.remove("empty");
-      preview.innerHTML = `<video controls src="${payload.video_url}"></video>`;
-      qs("#video-frames").textContent = payload.frames;
-      qs("#video-count").textContent = payload.total_detections;
-      qs("#video-dimensions").textContent = `${payload.width} x ${payload.height}`;
-      showMessage(message, "Video processing complete.", "success");
+      preview.innerHTML = `<img class="stream-frame" src="${payload.stream_url}?t=${Date.now()}" alt="Live detection stream">`;
+      updateVideoMetrics({ ...payload, progress: 0 });
+      showMessage(message, "Live detection started. The final video will be saved automatically.");
+      pollTimer = window.setInterval(() => {
+        pollVideoJob(payload.status_url).catch((error) => {
+          clearPoll();
+          showMessage(message, error.message, "error");
+          setBusy(button, false, "Start Live Detection");
+        });
+      }, 900);
     } catch (error) {
+      clearPoll();
       showMessage(message, error.message, "error");
-    } finally {
-      setBusy(button, false, "Process Video");
+      setBusy(button, false, "Start Live Detection");
     }
   });
 }
