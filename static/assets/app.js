@@ -50,9 +50,9 @@ function drawVisionCanvas() {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const boxes = [
-    { x: 92, y: 118, w: 235, h: 280, label: "object 0.92", color: "#72f6ff" },
-    { x: 438, y: 86, w: 318, h: 218, label: "target 0.86", color: "#ff63d8" },
-    { x: 360, y: 360, w: 255, h: 138, label: "class 0.78", color: "#ffd166" },
+    { x: 92, y: 118, w: 235, h: 280, label: "object 0.92", color: "#343a40" },
+    { x: 438, y: 86, w: 318, h: 218, label: "target 0.86", color: "#717780" },
+    { x: 360, y: 360, w: 255, h: 138, label: "class 0.78", color: "#aeb3b8" },
   ];
   let tick = 0;
 
@@ -63,21 +63,21 @@ function drawVisionCanvas() {
 
     ctx.clearRect(0, 0, width, height);
     const background = ctx.createLinearGradient(0, 0, width, height);
-    background.addColorStop(0, "#070713");
-    background.addColorStop(0.42, "#35135f");
-    background.addColorStop(1, "#ef5da8");
+    background.addColorStop(0, "#ffffff");
+    background.addColorStop(0.44, "#eeeeec");
+    background.addColorStop(1, "#b8bdc3");
     ctx.fillStyle = background;
     ctx.fillRect(0, 0, width, height);
 
     for (let y = 0; y < height; y += 36) {
       for (let x = 0; x < width; x += 36) {
-        const shade = 165 + Math.sin(x * 0.025 + y * 0.02 + tick) * 55;
-        ctx.fillStyle = `rgba(${shade}, 245, 255, 0.28)`;
+        const shade = 160 + Math.sin(x * 0.025 + y * 0.02 + tick) * 48;
+        ctx.fillStyle = `rgba(${shade}, ${shade}, ${shade}, 0.38)`;
         ctx.fillRect(x + 3, y + 3, 2, 2);
       }
     }
 
-    ctx.strokeStyle = "rgba(255,255,255,0.16)";
+    ctx.strokeStyle = "rgba(22,22,22,0.14)";
     ctx.lineWidth = 1;
     for (let y = 48; y < height; y += 72) {
       ctx.beginPath();
@@ -94,7 +94,7 @@ function drawVisionCanvas() {
 
       ctx.fillStyle = box.color;
       ctx.fillRect(box.x - pulse, box.y + pulse - 30, 132, 30);
-      ctx.fillStyle = "#070713";
+      ctx.fillStyle = "#ffffff";
       ctx.font = "18px Arial";
       ctx.fillText(box.label, box.x + 10 - pulse, box.y + pulse - 9);
     });
