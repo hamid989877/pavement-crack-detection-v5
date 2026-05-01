@@ -9,6 +9,10 @@ pinned: false
 
 A small website for presenting a trained YOLO project and running detections with a custom `best.pt` model.
 
+## Live Website
+
+[Open the full detection app on Hugging Face Spaces](https://hamid989877-pavement-crack-detection-v5.hf.space)
+
 ## Pages
 
 - Project page with project details and an animated detection preview.
