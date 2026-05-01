@@ -3,18 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>YOLO Vision Lab</title>
+    <title>Pavement Crack Detection</title>
     <link rel="stylesheet" href="assets/styles.css">
     <script defer src="assets/app.js"></script>
   </head>
   <body data-page="home">
     <header class="site-header">
-      <a class="brand" href="index.html" aria-label="YOLO Vision Lab home">
+      <a class="brand" href="index.html" aria-label="Pavement Crack Detection home">
         <span class="brand-mark"></span>
-        <span>YOLO Vision Lab</span>
+        <span>Pavement Crack Detection</span>
       </a>
       <nav class="nav-links" aria-label="Primary navigation">
-        <a href="index.html" aria-current="page">Project</a>
+        <a href="index.html" aria-current="page">Home</a>
         <a href="image.html">Image Detection</a>
         <a href="video.html">Video Detection</a>
       </nav>
@@ -24,26 +24,21 @@
       <section class="hero-shell">
         <div class="hero-copy">
           <p class="eyebrow">YOLO AI Detection Platform</p>
-          <h1>YOLO Vision Lab</h1>
+          <h1>Pavement Crack Detection</h1>
           <p class="lead">
             A gradient-style project site for presenting your trained model, running object
             detection on uploaded images, and processing uploaded videos with the same AI pipeline.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="image.html">Try Image Detection</a>
-            <a class="button secondary" href="video.html">Upload Video</a>
-          </div>
-          <div class="signal-row" aria-label="Project highlights">
-            <span>best.pt ready</span>
-            <span>Image inference</span>
-            <span>Video inference</span>
+            <a class="button primary" href="image.html">Image Detection</a>
+            <a class="button secondary" href="video.html">Video Detection</a>
           </div>
         </div>
-        <div class="vision-stage" aria-label="Animated detection preview">
-          <canvas id="vision-canvas" width="900" height="620"></canvas>
+        <div class="vision-stage" aria-label="Pavement crack detection preview">
+          <img class="crack-preview" src="assets/pavement-crack-detection.png" alt="Detected pavement crack with confidence labels">
           <div class="stage-status">
             <span class="pulse-dot"></span>
-            <span>Model preview</span>
+            <span>Detected crack preview</span>
           </div>
         </div>
       </section>
@@ -51,7 +46,6 @@
       <section class="content-band">
         <div class="section-heading">
           <p class="eyebrow">Project Details</p>
-          <h2>Built around your trained <span>best.pt</span> model</h2>
         </div>
         <div class="detail-grid">
           <article class="detail-card">
@@ -85,7 +79,7 @@
         <div class="about-layout">
           <div>
             <p class="eyebrow">About The Project</p>
-            <h2>From training artifact to practical AI demo</h2>
+            <h2>From training artifact to practical AI detection</h2>
           </div>
           <p>
             The site is designed for a YOLO model trained in Ultralytics format. The backend loads
