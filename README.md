@@ -1,3 +1,10 @@
+---
+title: Pavement Crack Detection V5
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Pavement Crack Detection V5
 
 A small website for presenting a trained YOLO project and running detections with a custom `best.pt` model.
@@ -46,6 +53,16 @@ A small website for presenting a trained YOLO project and running detections wit
 ## Notes
 
 - Generated videos are written to `outputs/`.
-- Model files are ignored by git because `.pt` files can be large. Use Git LFS or a release asset if you want to store the model in GitHub.
+- Model files are ignored by normal git because `.pt` files can be large. Use Git LFS for Hugging Face Spaces.
 - The API loads the model once and reuses it for image and video requests.
 - GitHub Pages deploys the static UI preview from `static/`. The upload controls need the Python backend to run real YOLO detection.
+
+## Hugging Face Spaces
+
+This project is ready for a Docker Space. The Space must include the model file at:
+
+```text
+model/best.pt
+```
+
+The app runs on port `7860`, which is the default port used by Docker Spaces.
