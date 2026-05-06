@@ -117,15 +117,39 @@ select {
 }
 
 .hero-shell {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(360px, 1.1fr);
   gap: clamp(30px, 5vw, 76px);
   align-items: center;
+  overflow: hidden;
   min-height: calc(100vh - 82px);
   padding: clamp(48px, 7vw, 96px) clamp(18px, 4vw, 64px) 42px;
 }
 
+.hero-video-bg,
+.hero-video-shade {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.hero-video-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-video-shade {
+  z-index: -1;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.68) 44%, rgba(255, 255, 255, 0.28)),
+    linear-gradient(0deg, rgba(244, 244, 242, 0.92), rgba(244, 244, 242, 0.24) 38%, rgba(244, 244, 242, 0.58));
+}
+
 .hero-copy {
+  padding: 26px 0;
   max-width: 680px;
 }
 
