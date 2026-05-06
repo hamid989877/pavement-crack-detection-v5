@@ -105,6 +105,30 @@
           <div class="final-actions" id="video-actions" hidden>
             <a class="button secondary" id="video-download" href="#" download>Download Saved Video</a>
           </div>
+          <div class="video-detection-log">
+            <div class="log-heading">
+              <div>
+                <p class="metric-label">Detection Log</p>
+                <p class="log-note" id="video-log-note">No crack detections yet.</p>
+              </div>
+            </div>
+            <div class="table-shell">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Second</th>
+                    <th>Frame</th>
+                    <th>Type</th>
+                    <th>Precision</th>
+                    <th>Box</th>
+                  </tr>
+                </thead>
+                <tbody id="video-detections">
+                  <tr><td colspan="5">No crack detections yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
     </main>

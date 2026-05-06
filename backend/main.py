@@ -50,6 +50,7 @@ app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
 
 VIDEO_JOBS: dict[str, dict[str, Any]] = {}
 VIDEO_JOBS_LOCK = threading.Lock()
+VIDEO_DETECTION_EVENT_LIMIT = 5000
 
 
 @lru_cache(maxsize=1)
@@ -104,6 +105,35 @@ def detections_from_result(result: Any) -> list[dict[str, Any]]:
         )
 
     return detections
+
+
+def format_timecode(seconds: float) -> str:
+    total_ms = int(round(seconds * 1000))
+    whole_seconds, milliseconds = divmod(total_ms, 1000)
+    minutes, second = divmod(whole_seconds, 60)
+    hour, minute = divmod(minutes, 60)
+    return f"{hour:02d}:{minute:02d}:{second:02d}.{milliseconds:03d}"
+
+
+def detection_events_from_frame(
+    detections: list[dict[str, Any]],
+    frame_index: int,
+    fps: float,
+) -> list[dict[str, Any]]:
+    second = frame_index / fps if fps else 0
+    return [
+        {
+            "frame": frame_index + 1,
+            "second": round(second, 3),
+            "timestamp": format_timecode(second),
+            "class_id": detection["class_id"],
+            "label": detection["label"],
+            "confidence": detection["confidence"],
+            "precision": round(detection["confidence"] * 100, 2),
+            "box": detection["box"],
+        }
+        for detection in detections
+    ]
 
 
 def encoded_jpeg(image: np.ndarray) -> str:
@@ -180,6 +210,9 @@ def video_job_payload(job_id: str, job: dict[str, Any]) -> dict[str, Any]:
         "width": job.get("width"),
         "height": job.get("height"),
         "total_detections": int(job.get("total_detections") or 0),
+        "detection_event_count": int(job.get("detection_event_count") or 0),
+        "detection_events": list(job.get("detection_events") or []),
+        "detection_events_truncated": bool(job.get("detection_events_truncated")),
         "video_url": job.get("video_url"),
         "stream_url": f"/api/detect/video/{job_id}/stream",
         "error": job.get("error"),
@@ -237,6 +270,8 @@ def process_video_job(
     frame_count = 0
     analyzed_frames = 0
     total_detections = 0
+    detection_events: list[dict[str, Any]] = []
+    detection_events_truncated = False
     last_detections: list[dict[str, Any]] | None = None
 
     try:
@@ -269,10 +304,19 @@ def process_video_job(
                 break
 
             should_analyze = frame_count % frame_stride == 0
+            events_changed = False
             if should_analyze or last_detections is None:
                 result = model.predict(source=frame, conf=conf, imgsz=imgsz, verbose=False)[0]
                 detections = detections_from_result(result)
-                total_detections += len(detections)
+                frame_events = detection_events_from_frame(detections, frame_count, fps)
+                total_detections += len(frame_events)
+                events_changed = bool(frame_events)
+                if frame_events and len(detection_events) < VIDEO_DETECTION_EVENT_LIMIT:
+                    open_slots = VIDEO_DETECTION_EVENT_LIMIT - len(detection_events)
+                    detection_events.extend(frame_events[:open_slots])
+                    detection_events_truncated = len(frame_events) > open_slots
+                elif frame_events:
+                    detection_events_truncated = True
                 analyzed_frames += 1
                 annotated = result.plot()
                 last_detections = detections
@@ -283,13 +327,17 @@ def process_video_job(
             frame_count += 1
 
             latest_frame = jpeg_bytes(annotated)
-            update_video_job(
-                job_id,
-                frames=frame_count,
-                analyzed_frames=analyzed_frames,
-                total_detections=total_detections,
-                latest_frame=latest_frame,
-            )
+            job_updates = {
+                "frames": frame_count,
+                "analyzed_frames": analyzed_frames,
+                "total_detections": total_detections,
+                "detection_event_count": total_detections,
+                "detection_events_truncated": detection_events_truncated,
+                "latest_frame": latest_frame,
+            }
+            if events_changed:
+                job_updates["detection_events"] = list(detection_events)
+            update_video_job(job_id, **job_updates)
 
         if frame_count == 0:
             raise ValueError("No video frames were processed.")
@@ -305,6 +353,9 @@ def process_video_job(
             frames=frame_count,
             analyzed_frames=analyzed_frames,
             total_detections=total_detections,
+            detection_event_count=total_detections,
+            detection_events=list(detection_events),
+            detection_events_truncated=detection_events_truncated,
             video_url=f"/outputs/{output_path.name}",
         )
     except Exception as exc:  # noqa: BLE001 - user-facing job errors are captured in status
@@ -438,6 +489,9 @@ async def detect_video(
             "width": width,
             "height": height,
             "total_detections": 0,
+            "detection_event_count": 0,
+            "detection_events": [],
+            "detection_events_truncated": False,
             "video_url": None,
             "latest_frame": None,
             "error": None,
@@ -463,6 +517,9 @@ async def detect_video(
         "width": width,
         "height": height,
         "total_detections": 0,
+        "detection_event_count": 0,
+        "detection_events": [],
+        "detection_events_truncated": False,
         "stream_url": f"/api/detect/video/{job_id}/stream",
         "status_url": f"/api/detect/video/{job_id}",
         "video_url": None,

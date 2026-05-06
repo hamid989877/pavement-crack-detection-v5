@@ -45,6 +45,21 @@ async function apiError(response) {
   }
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatPercent(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "-";
+  return `${number.toFixed(number % 1 === 0 ? 0 : 1)}%`;
+}
+
 function drawVisionCanvas() {
   const canvas = qs("#vision-canvas");
   if (!canvas) return;
@@ -117,9 +132,43 @@ function renderImageDetections(detections) {
     .map((item) => {
       const box = item.box;
       return `<tr>
-        <td>${item.label}</td>
-        <td>${Math.round(item.confidence * 100)}%</td>
+        <td>${escapeHtml(item.label)}</td>
+        <td>${formatPercent(item.confidence * 100)}</td>
         <td>${box.x1}, ${box.y1}, ${box.x2}, ${box.y2}</td>
+      </tr>`;
+    })
+    .join("");
+}
+
+function renderVideoDetections(payload = {}) {
+  const table = qs("#video-detections");
+  const note = qs("#video-log-note");
+  if (!table) return;
+
+  const events = payload.detection_events || [];
+  const total = payload.detection_event_count ?? events.length;
+  const truncated = Boolean(payload.detection_events_truncated);
+
+  if (!events.length) {
+    table.innerHTML = `<tr><td colspan="5">No crack detections yet.</td></tr>`;
+    if (note) note.textContent = "No crack detections yet.";
+    return;
+  }
+
+  const shownText = truncated
+    ? `Showing first ${events.length} of ${total} crack detections.`
+    : `${total} crack detection${total === 1 ? "" : "s"} logged.`;
+  if (note) note.textContent = shownText;
+
+  table.innerHTML = events
+    .map((event) => {
+      const box = event.box || {};
+      return `<tr>
+        <td>${escapeHtml(event.timestamp || `${event.second}s`)}</td>
+        <td>${escapeHtml(event.frame)}</td>
+        <td>${escapeHtml(event.label)}</td>
+        <td>${formatPercent(event.precision ?? Number(event.confidence || 0) * 100)}</td>
+        <td>${escapeHtml(`${box.x1}, ${box.y1}, ${box.x2}, ${box.y2}`)}</td>
       </tr>`;
     })
     .join("");
@@ -205,6 +254,7 @@ function setupVideoForm() {
       : payload.frames;
     qs("#video-count").textContent = payload.total_detections;
     qs("#video-dimensions").textContent = `${payload.width} x ${payload.height}`;
+    renderVideoDetections(payload);
     if (progressFill) {
       const progress = Math.max(0, Math.min(1, payload.progress || 0));
       progressFill.style.width = `${Math.round(progress * 100)}%`;
@@ -257,6 +307,7 @@ function setupVideoForm() {
     showSourceVideo(file);
     if (actions) actions.hidden = true;
     if (progressFill) progressFill.style.width = "0%";
+    renderVideoDetections({ detection_events: [], detection_event_count: 0 });
 
     const formData = new FormData();
     formData.append("file", file);
