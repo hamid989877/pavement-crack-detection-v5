@@ -63,10 +63,7 @@ versions/
   version-3/               Non-model artifacts from version 3 training runs
 
 model/
-  .gitkeep                 Placeholder only; download best.pt from Hugging Face
-
-outputs/
-  .gitkeep                 Generated detection videos are written here locally
+  .gitkeep                 Placeholder for the active model file
 ```
 
 ## Dataset And Training Versions
@@ -100,66 +97,12 @@ The active app model and versioned checkpoints are stored in Hugging Face:
 https://huggingface.co/hamid989877/pavement-crack-detection-v5-model
 ```
 
-The root `best.pt` is the model expected by the local app. Versioned checkpoints are available under:
+The root `best.pt` is the active model used by the application. Versioned checkpoints are available under:
 
 ```text
 versions/version-1/run-*/detect/train/weights/
 versions/version-2/run-1/detect/train/weights/
 versions/version-3/run-1/detect/train/weights/
-```
-
-Download the active app model:
-
-```powershell
-hf download hamid989877/pavement-crack-detection-v5-model best.pt --local-dir model
-```
-
-Download all versioned checkpoints:
-
-```powershell
-hf download hamid989877/pavement-crack-detection-v5-model --include "versions/**/*.pt" --local-dir .
-```
-
-## Run Locally
-
-1. Create and activate a virtual environment.
-
-   ```powershell
-   py -3 -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
-
-2. Install dependencies.
-
-   ```powershell
-   pip install -r requirements.txt
-   pip install -U huggingface_hub
-   ```
-
-3. Download the active model from Hugging Face.
-
-   ```powershell
-   hf download hamid989877/pavement-crack-detection-v5-model best.pt --local-dir model
-   ```
-
-4. Start the backend and website.
-
-   ```powershell
-   uvicorn backend.main:app --reload
-   ```
-
-5. Open the site.
-
-   ```text
-   http://127.0.0.1:8000
-   ```
-
-## Generate The Report
-
-The final PDF report can be regenerated from the project artifacts with:
-
-```powershell
-python tools/generate_final_report.py
 ```
 
 ## API Overview
@@ -175,6 +118,5 @@ python tools/generate_final_report.py
 ## Notes
 
 - GitHub Pages is a static preview, so upload detection does not run there by itself.
-- Real detection needs the FastAPI backend running locally or on a backend host.
-- Generated videos are saved in `outputs/` during local development.
+- Real detection requires the FastAPI backend and the Hugging Face model weights.
 - Large model formats are ignored by `.gitignore` and should stay in Hugging Face.
