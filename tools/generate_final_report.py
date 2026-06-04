@@ -82,15 +82,20 @@ REFERENCES = [
 NEW_PAGE_SECTIONS = {
     "Technical Summary",
     "Classical Crack Detection Experiments",
+    "Modern YOLOv8 Literature Experiments",
     "Synthesis Of Reference Experiments",
     "YOLO Algorithm Family",
+    "YOLOv8 Architecture Details",
     "Loss Functions And Optimization",
+    "Bounding Boxes, IoU, And NMS",
+    "Precision-Recall Evidence",
     "Confidence Threshold Behavior",
     "Confusion Matrix And Error Analysis",
     "Validation Prediction Examples",
     "More Visual Evidence From The Selected Run",
     "Cross-Version Training Observations",
     "Qualitative Comparison Across Versions",
+    "From Detection Output To Maintenance Insight",
     "Reference Lessons Applied To This Project",
     "Future Technical Improvements",
     "References",
@@ -127,7 +132,7 @@ def draw_page(canvas, doc):
         canvas.line(doc.leftMargin, height - 0.42 * inch, width - doc.rightMargin, height - 0.42 * inch)
         canvas.setFont("Helvetica", 8)
         canvas.setFillColor(ASPHALT_LIGHT)
-        canvas.drawString(doc.leftMargin, 0.35 * inch, "Pavement Crack Detection V5 - Technical Final Project Report")
+        canvas.drawString(doc.leftMargin, 0.35 * inch, "Pavement Crack Detection - Final Project Report")
         canvas.drawRightString(width - doc.rightMargin, 0.35 * inch, f"Page {page}")
     canvas.restoreState()
 
@@ -524,8 +529,8 @@ def build_story():
     selected_dir = ROOT / "versions" / "version-1" / "run-6" / "detect" / "train"
 
     story.append(Spacer(1, 0.1 * inch))
-    story.append(Paragraph("Pavement Crack Detection V5", STYLES["CoverTitle"]))
-    story.append(Paragraph("Technical Final Project Report", STYLES["CoverSubtitle"]))
+    story.append(Paragraph("Pavement Crack Detection", STYLES["CoverTitle"]))
+    story.append(Paragraph("Final Project Report", STYLES["CoverSubtitle"]))
     story.append(Spacer(1, 0.12 * inch))
     story.append(Paragraph("Hamidreza Khalaj Zahraei", STYLES["CoverSubtitle"]))
     story.append(Paragraph("Student ID: 300204093", STYLES["CoverSubtitle"]))
@@ -1361,7 +1366,7 @@ def main():
         leftMargin=0.65 * inch,
         topMargin=0.65 * inch,
         bottomMargin=0.62 * inch,
-        title="Pavement Crack Detection V5 Technical Final Project Report",
+        title="Pavement Crack Detection Final Project Report",
         author="Hamidreza Khalaj Zahraei",
     )
     story = build_story()
