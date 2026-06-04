@@ -5,6 +5,14 @@ __pycache__/
 
 model/*.pt
 model/*.onnx
+versions/**/*.pt
+versions/**/*.pth
+versions/**/*.onnx
+versions/**/*.engine
+versions/**/*.tflite
+versions/**/*.pb
+versions/**/*.weights
+versions/**/*.bin
 outputs/*
 !outputs/.gitkeep
 
