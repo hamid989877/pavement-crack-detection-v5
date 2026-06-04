@@ -79,6 +79,23 @@ REFERENCES = [
     "Ultralytics. YOLO11 model documentation. https://docs.ultralytics.com/models/yolo11/",
 ]
 
+NEW_PAGE_SECTIONS = {
+    "Technical Summary",
+    "Classical Crack Detection Experiments",
+    "Synthesis Of Reference Experiments",
+    "YOLO Algorithm Family",
+    "Loss Functions And Optimization",
+    "Confidence Threshold Behavior",
+    "Confusion Matrix And Error Analysis",
+    "Validation Prediction Examples",
+    "More Visual Evidence From The Selected Run",
+    "Cross-Version Training Observations",
+    "Qualitative Comparison Across Versions",
+    "Reference Lessons Applied To This Project",
+    "Future Technical Improvements",
+    "References",
+}
+
 
 class NumberedDocTemplate(BaseDocTemplate):
     def __init__(self, filename: str, **kwargs):
@@ -272,6 +289,8 @@ def styled_table(rows, col_widths=None, font_size=7.4, repeat_rows=1, highlight_
 
 
 def section(story, title: str):
+    if title in NEW_PAGE_SECTIONS and story:
+        story.append(PageBreak())
     story.append(heading(title))
 
 
