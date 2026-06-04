@@ -12,6 +12,7 @@ The repository is intentionally split across two platforms:
 - GitHub repository: [hamid989877/pavement-crack-detection-v5](https://github.com/hamid989877/pavement-crack-detection-v5)
 - Static GitHub Pages preview: [pavement-crack-detection-v5](https://hamid989877.github.io/pavement-crack-detection-v5/)
 - Hugging Face model repository: [pavement-crack-detection-v5-model](https://huggingface.co/hamid989877/pavement-crack-detection-v5-model)
+- Final project report: [reports/Pavement_Crack_Detection_Final_Project_Report.pdf](reports/Pavement_Crack_Detection_Final_Project_Report.pdf)
 
 ## What The Project Does
 
@@ -152,6 +153,14 @@ hf download hamid989877/pavement-crack-detection-v5-model --include "versions/**
    ```text
    http://127.0.0.1:8000
    ```
+
+## Generate The Report
+
+The final PDF report can be regenerated from the project artifacts with:
+
+```powershell
+python tools/generate_final_report.py
+```
 
 ## API Overview
 
