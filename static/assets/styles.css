@@ -130,14 +130,14 @@ select {
   padding: clamp(48px, 7vw, 96px) clamp(18px, 4vw, 64px) 42px;
 }
 
-.hero-image-bg,
+.hero-video-bg,
 .hero-video-shade {
   position: absolute;
   inset: 0;
   z-index: -2;
 }
 
-.hero-image-bg {
+.hero-video-bg {
   width: 100%;
   height: 100%;
   object-fit: cover;

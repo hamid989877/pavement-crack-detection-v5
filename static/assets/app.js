@@ -31,6 +31,29 @@ function bindFileName(inputId, targetId) {
   });
 }
 
+function setupHeroVideo() {
+  const video = qs(".hero-video-bg");
+  if (!video) return;
+
+  video.muted = true;
+  video.playsInline = true;
+
+  const play = () => {
+    const attempt = video.play();
+    if (attempt?.catch) attempt.catch(() => {});
+  };
+
+  if (video.readyState >= 2) {
+    play();
+  } else {
+    video.addEventListener("canplay", play, { once: true });
+  }
+
+  ["click", "touchstart", "keydown"].forEach((eventName) => {
+    window.addEventListener(eventName, play, { once: true, passive: true });
+  });
+}
+
 function setBusy(button, busy, label) {
   if (!button) return;
   button.disabled = busy;
@@ -362,6 +385,7 @@ bindRange("image-conf", "image-conf-output");
 bindRange("video-conf", "video-conf-output");
 bindFileName("image-file", "image-file-name");
 bindFileName("video-file", "video-file-name");
+setupHeroVideo();
 drawVisionCanvas();
 setupImageForm();
 setupVideoForm();

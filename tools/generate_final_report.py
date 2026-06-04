@@ -525,7 +525,7 @@ def add_reference_list(story):
 
 def build_story():
     story = []
-    cover_img = ROOT / "static" / "assets" / "hero-crack-background.jpg"
+    cover_img = ROOT / "static" / "assets" / "pavement-crack-detection.png"
     selected_dir = ROOT / "versions" / "version-1" / "run-6" / "detect" / "train"
 
     story.append(Spacer(1, 0.1 * inch))
@@ -535,7 +535,7 @@ def build_story():
     story.append(Paragraph("Hamidreza Khalaj Zahraei", STYLES["CoverSubtitle"]))
     story.append(Paragraph("Student ID: 300204093", STYLES["CoverSubtitle"]))
     story.append(Spacer(1, 0.18 * inch))
-    story.append(image_flowable(cover_img, "Cover image: asphalt pavement crack used as the project visual theme.", max_width=6.4 * inch, max_height=3.0 * inch))
+    story.append(image_flowable(cover_img, "Cover image: YOLO pavement distress detection example with class labels and confidence scores.", max_width=6.4 * inch, max_height=3.0 * inch))
     story.append(Spacer(1, 0.18 * inch))
     story.append(
         para(
