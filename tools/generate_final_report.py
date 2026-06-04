@@ -272,8 +272,6 @@ def styled_table(rows, col_widths=None, font_size=7.4, repeat_rows=1, highlight_
 
 
 def section(story, title: str):
-    if story:
-        story.append(PageBreak())
     story.append(heading(title))
 
 
@@ -349,6 +347,150 @@ def model_bar_chart():
     drawing.add(Rect(360, 150, 8, 8, fillColor=ASPHALT_LIGHT, strokeColor=ASPHALT_LIGHT))
     drawing.add(String(373, 151, "mAP50-95", fontName="Helvetica", fontSize=7, fillColor=ASPHALT))
     return drawing
+
+
+def yolo_v8_complexity_chart():
+    data = [
+        ("n", 3.2, 8.7),
+        ("s", 11.2, 28.6),
+        ("m", 25.9, 78.9),
+        ("l", 43.7, 165.2),
+        ("x", 68.2, 257.8),
+    ]
+    width = 470
+    height = 180
+    drawing = Drawing(width, height)
+    drawing.add(String(10, 165, "YOLOv8 model complexity from Zhang et al. [2]", fontName="Helvetica-Bold", fontSize=10, fillColor=ASPHALT))
+    chart_x = 55
+    chart_y = 32
+    chart_w = 370
+    chart_h = 120
+    drawing.add(Line(chart_x, chart_y, chart_x + chart_w, chart_y, strokeColor=ASPHALT_LIGHT))
+    drawing.add(Line(chart_x, chart_y, chart_x, chart_y + chart_h, strokeColor=ASPHALT_LIGHT))
+    group_w = chart_w / len(data)
+    max_params = max(row[1] for row in data)
+    max_flops = max(row[2] for row in data)
+    for idx, (name, params, flops) in enumerate(data):
+        x = chart_x + idx * group_w + 16
+        h1 = params / max_params * chart_h
+        h2 = flops / max_flops * chart_h
+        drawing.add(Rect(x, chart_y, 13, h1, fillColor=AMBER, strokeColor=AMBER))
+        drawing.add(Rect(x + 18, chart_y, 13, h2, fillColor=ASPHALT_LIGHT, strokeColor=ASPHALT_LIGHT))
+        drawing.add(String(x + 4, chart_y - 13, name, fontName="Helvetica-Bold", fontSize=7, fillColor=ASPHALT))
+    drawing.add(Rect(285, 160, 8, 8, fillColor=AMBER, strokeColor=AMBER))
+    drawing.add(String(298, 161, "Parameters", fontName="Helvetica", fontSize=7, fillColor=ASPHALT))
+    drawing.add(Rect(365, 160, 8, 8, fillColor=ASPHALT_LIGHT, strokeColor=ASPHALT_LIGHT))
+    drawing.add(String(378, 161, "FLOPs", fontName="Helvetica", fontSize=7, fillColor=ASPHALT))
+    return drawing
+
+
+def literature_result_chart():
+    rows = [
+        ("Classic crack detection [4]", 88.0, "Detection success"),
+        ("YOLOv3 crack detection [1]", 88.0, "Accuracy"),
+        ("SMG-YOLOv8 [2]", 79.4, "mAP50"),
+        ("Selected project model", 88.44, "mAP50"),
+    ]
+    drawing = Drawing(470, 175)
+    drawing.add(String(10, 160, "Reference and project result anchors", fontName="Helvetica-Bold", fontSize=10, fillColor=ASPHALT))
+    chart_x = 160
+    chart_y = 30
+    bar_h = 18
+    max_value = 100
+    for idx, (name, value, metric) in enumerate(rows):
+        y = chart_y + (len(rows) - idx - 1) * 30
+        drawing.add(String(10, y + 4, name, fontName="Helvetica", fontSize=7.2, fillColor=ASPHALT))
+        drawing.add(Rect(chart_x, y, value / max_value * 280, bar_h, fillColor=AMBER if "project" in name.lower() else ASPHALT_LIGHT, strokeColor=None))
+        drawing.add(String(chart_x + value / max_value * 280 + 5, y + 4, f"{value:.1f}% {metric}", fontName="Helvetica", fontSize=7, fillColor=ASPHALT))
+    drawing.add(Line(chart_x, chart_y - 6, chart_x + 280, chart_y - 6, strokeColor=ASPHALT_LIGHT))
+    drawing.add(String(chart_x, chart_y - 20, "0", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(chart_x + 135, chart_y - 20, "50", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(chart_x + 268, chart_y - 20, "100", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    return drawing
+
+
+def model_tradeoff_chart():
+    drawing = Drawing(470, 185)
+    drawing.add(String(10, 170, "Project model trade-off: checkpoint size versus mAP50", fontName="Helvetica-Bold", fontSize=10, fillColor=ASPHALT))
+    chart_x = 55
+    chart_y = 35
+    chart_w = 370
+    chart_h = 120
+    drawing.add(Line(chart_x, chart_y, chart_x + chart_w, chart_y, strokeColor=ASPHALT_LIGHT))
+    drawing.add(Line(chart_x, chart_y, chart_x, chart_y + chart_h, strokeColor=ASPHALT_LIGHT))
+    min_size, max_size = 0, 125
+    min_map, max_map = 0.84, 0.90
+    for version, run, base_model, _data, size_mb, map50, _map5095, _precision, _recall in MODEL_ROWS:
+        x = chart_x + (size_mb - min_size) / (max_size - min_size) * chart_w
+        y = chart_y + (map50 - min_map) / (max_map - min_map) * chart_h
+        fill = AMBER if version == "version-1" and run == "run-6" else ASPHALT_LIGHT
+        drawing.add(Rect(x - 4, y - 4, 8, 8, fillColor=fill, strokeColor=ASPHALT))
+        drawing.add(String(x + 5, y + 2, run.replace("run-", "r"), fontName="Helvetica", fontSize=6.2, fillColor=ASPHALT))
+    drawing.add(String(chart_x, chart_y - 18, "0 MB", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(chart_x + chart_w - 24, chart_y - 18, "125 MB", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(12, chart_y + chart_h - 2, "0.90", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(12, chart_y - 1, "0.84", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    return drawing
+
+
+def precision_recall_chart():
+    drawing = Drawing(470, 185)
+    drawing.add(String(10, 170, "Project model trade-off: precision versus recall", fontName="Helvetica-Bold", fontSize=10, fillColor=ASPHALT))
+    chart_x = 55
+    chart_y = 35
+    chart_w = 370
+    chart_h = 120
+    drawing.add(Line(chart_x, chart_y, chart_x + chart_w, chart_y, strokeColor=ASPHALT_LIGHT))
+    drawing.add(Line(chart_x, chart_y, chart_x, chart_y + chart_h, strokeColor=ASPHALT_LIGHT))
+    min_p, max_p = 0.76, 0.86
+    min_r, max_r = 0.78, 0.85
+    for version, run, _base_model, _data, _size_mb, _map50, _map5095, precision, recall in MODEL_ROWS:
+        x = chart_x + (precision - min_p) / (max_p - min_p) * chart_w
+        y = chart_y + (recall - min_r) / (max_r - min_r) * chart_h
+        fill = AMBER if version == "version-1" and run == "run-6" else ASPHALT_LIGHT
+        drawing.add(Rect(x - 4, y - 4, 8, 8, fillColor=fill, strokeColor=ASPHALT))
+        drawing.add(String(x + 5, y + 2, run.replace("run-", "r"), fontName="Helvetica", fontSize=6.2, fillColor=ASPHALT))
+    drawing.add(String(chart_x, chart_y - 18, "Precision 0.76", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(chart_x + chart_w - 56, chart_y - 18, "Precision 0.86", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(12, chart_y + chart_h - 2, "Recall 0.85", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    drawing.add(String(12, chart_y - 1, "0.78", fontName="Helvetica", fontSize=7, fillColor=ASPHALT_LIGHT))
+    return drawing
+
+
+def image_grid(items, max_width=3.05 * inch, max_height=2.1 * inch):
+    rows = []
+    row = []
+    for path, caption in items:
+        if path.exists():
+            with PILImage.open(path) as img:
+                width, height = img.size
+            scale = min(max_width / width, max_height / height)
+            cell = [
+                Image(str(path), width=width * scale, height=height * scale),
+                Paragraph(caption, STYLES["Caption"]),
+            ]
+        else:
+            cell = [Paragraph(f"Missing figure: {path.name}", STYLES["Small"])]
+        row.append(cell)
+        if len(row) == 2:
+            rows.append(row)
+            row = []
+    if row:
+        row.append("")
+        rows.append(row)
+    table = Table(rows, colWidths=[3.2 * inch, 3.2 * inch])
+    table.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 3),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 3),
+                ("TOPPADDING", (0, 0), (-1, -1), 3),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 3),
+            ]
+        )
+    )
+    return table
 
 
 def add_reference_list(story):
@@ -556,6 +698,36 @@ def build_story():
         )
     )
 
+    section(story, "Synthesis Of Reference Experiments")
+    story.append(literature_result_chart())
+    story.append(Paragraph("Figure 1. Result anchors from the supplied references and the selected project model.", STYLES["Caption"]))
+    story.append(
+        para(
+            "The four reference papers do not use identical datasets or identical metrics, so the chart above should not be read as a direct leaderboard. "
+            "It is included to show the technical range of results that motivated the project. Classical image processing and YOLOv3 both reach strong "
+            "reported crack-detection results, while modern YOLOv8 research focuses more on multi-class distress recognition and real-world generalization."
+        )
+    )
+    story.append(
+        para(
+            "The main pattern is that the problem changes as the method becomes more practical. A binary crack detector can report a high accuracy number, "
+            "but a road-maintenance model also needs class labels, box locations, robustness to pavement texture, and usable speed. This project therefore "
+            "uses a multi-class YOLO model and evaluates it with mAP, precision, recall, checkpoint size, and visual validation examples."
+        )
+    )
+    story.append(
+        styled_table(
+            [
+                ["Reference", "Experiment type", "Most important experience for this project"],
+                ["Cubero-Fernandez et al. [4]", "Handcrafted image-processing plus decision-tree classification.", "Crack-type classification is harder than binary detection and needs class-specific evidence."],
+                ["Nie and Wang [1]", "YOLOv3 crack detection against RetinaNet, Faster R-CNN, SVM, and structured light.", "One-stage detectors are attractive when speed matters, even if another model has slightly higher mAP."],
+                ["Zhang et al. [2]", "SMG-YOLOv8 for multi-scene asphalt distress.", "Feature fusion, small-object preservation, and attention are valuable for complex pavement images."],
+                ["Antariksa et al. [3]", "YOLOv8n, YOLOv8m, and YOLOv8x for transportation imagery.", "The most useful model is often a speed-accuracy compromise, not simply the largest checkpoint."],
+            ],
+            [1.55 * inch, 2.25 * inch, 2.7 * inch],
+        )
+    )
+
     section(story, "YOLO Algorithm Family")
     story.append(
         para(
@@ -582,6 +754,65 @@ def build_story():
                 ["YOLO11", "Recent Ultralytics generation for detection and other vision tasks [6].", "Several project runs evaluated YOLO11 variants."],
             ],
             [1.1 * inch, 2.75 * inch, 2.65 * inch],
+        )
+    )
+
+    section(story, "YOLOv8 Architecture Details")
+    story.append(yolo_v8_complexity_chart())
+    story.append(Paragraph("Figure 2. YOLOv8 model-size and FLOP progression reported by Zhang et al. [2].", STYLES["Caption"]))
+    story.append(
+        para(
+            "YOLOv8 is useful for this project because it provides several model sizes. The small variants are easier to run quickly, while the larger "
+            "variants can learn richer features at the cost of storage and computation. Zhang et al. report the expected progression: the n, s, m, l, "
+            "and x variants grow from 3.2 million to 68.2 million parameters and from 8.7 to 257.8 GFLOPs [2]."
+        )
+    )
+    story.append(
+        para(
+            "The selected project model uses the medium variant, YOLOv8m. That choice is technically consistent with the report's model-selection logic. "
+            "A nano model can be too limited for subtle road-surface variation, while an X model can be large without producing enough extra practical value. "
+            "The medium model gives a stronger feature extractor while keeping the checkpoint size manageable."
+        )
+    )
+    story.append(
+        styled_table(
+            [
+                ["Component", "What it learns", "Why it matters for cracks"],
+                ["Backbone", "Low-level texture, edge, and deeper semantic features.", "Cracks are often thin dark structures that need both edge and context cues."],
+                ["Neck", "Multi-scale feature fusion.", "Potholes, alligator patterns, and thin line cracks appear at different sizes."],
+                ["Detection head", "Box coordinates, confidence, and class scores.", "Turns learned features into visible crack labels and rectangles."],
+                ["Post-processing", "Thresholding and non-maximum suppression.", "Removes weak predictions and duplicate boxes around the same crack."],
+            ],
+            [1.35 * inch, 2.45 * inch, 2.7 * inch],
+        )
+    )
+
+    section(story, "Loss Functions And Optimization")
+    story.append(
+        para(
+            "Training a YOLO detector requires several losses at the same time. The model must learn where the box is, whether the object exists, and which "
+            "class the object belongs to. During training, box loss improves localization, classification loss improves label assignment, and distribution "
+            "or localization-related losses help make the predicted box more precise."
+        )
+    )
+    story.append(
+        para(
+            "The archived project runs use 50 epochs, 640-pixel image size, batch size 32, and the MuSGD optimizer. Keeping these settings similar across "
+            "runs makes the comparison more meaningful. If the training setup changed dramatically between runs, it would be harder to tell whether the "
+            "difference came from the model family, the dataset version, or the optimization setup."
+        )
+    )
+    story.append(
+        styled_table(
+            [
+                ["Training element", "Role in learning", "Project interpretation"],
+                ["Epochs = 50", "Number of passes over the training set.", "Enough to compare trends without making the report dependent on very long training."],
+                ["Image size = 640", "Resolution used during training and validation.", "Balances detail for thin cracks with practical computation."],
+                ["Batch size = 32", "Number of images processed before an update.", "Keeps training stable across all archived runs."],
+                ["MuSGD optimizer", "Updates network weights from loss gradients.", "Consistent optimizer across versions supports fairer comparison."],
+                ["Validation curves", "Track whether detection quality improves.", "Used to judge whether final metrics are supported by training behavior."],
+            ],
+            [1.35 * inch, 2.4 * inch, 2.75 * inch],
         )
     )
 
@@ -740,6 +971,37 @@ def build_story():
     story.append(model_bar_chart())
     story.append(Paragraph("Figure 4. mAP50 and mAP50-95 comparison across project runs.", STYLES["Caption"]))
 
+    section(story, "Accuracy, Size, Precision, And Recall Trade-Offs")
+    story.append(
+        para(
+            "A deployment-oriented model choice should compare more than one axis. The first trade-off plot below places mAP50 against checkpoint size. "
+            "The selected model is not the smallest and not the largest; it sits near the strong-accuracy group while avoiding the storage cost of the X-size "
+            "runs. This is exactly the kind of balance recommended by the YOLOv8 comparison experience in [3]."
+        )
+    )
+    story.append(model_tradeoff_chart())
+    story.append(Paragraph("Figure 5. Checkpoint size versus mAP50 for the archived project runs.", STYLES["Caption"]))
+    story.append(
+        para(
+            "The second trade-off plot places precision against recall. In pavement inspection, high recall reduces missed cracks, while high precision reduces "
+            "unnecessary alerts. Version-1/run-6 stays in the balanced part of the plot: it is not the highest-recall model, but it avoids the weaker precision "
+            "profile of the smallest run and remains suitable for the four-class image testing task."
+        )
+    )
+    story.append(precision_recall_chart())
+    story.append(Paragraph("Figure 6. Precision versus recall for the archived project runs.", STYLES["Caption"]))
+    story.append(
+        styled_table(
+            [
+                ["Decision question", "Metric evidence", "Interpretation"],
+                ["Should the smallest model be used?", "version-1/run-5 has size 5.48 MB but mAP50 0.8574 and recall 0.8069.", "Small size is attractive, but this run gives up too much detection quality."],
+                ["Should the largest model be used?", "version-1/run-3 and version-1/run-4 exceed 114 MB but do not dominate mAP50.", "Extra capacity does not automatically create better crack detection."],
+                ["Is version-1/run-6 balanced?", "52.04 MB, mAP50 0.8844, precision 0.8294, recall 0.8111.", "This is a strong middle option for the report's public image-testing goal."],
+            ],
+            [1.65 * inch, 2.55 * inch, 2.3 * inch],
+        )
+    )
+
     section(story, "Why Version-1 Run-6 Was Chosen")
     story.append(
         para(
@@ -821,6 +1083,18 @@ def build_story():
             "only strong aggregate metrics."
         )
     )
+    story.append(
+        styled_table(
+            [
+                ["Visual check", "What a good result looks like", "Why it matters"],
+                ["Box placement", "Boxes cover the visible distress without swallowing too much clean pavement.", "Tighter boxes make the output easier for a user to trust."],
+                ["Class label", "The predicted label matches the crack orientation or distress shape.", "Correct labels connect detection to maintenance meaning."],
+                ["Duplicate boxes", "One visible defect is not repeated many times with overlapping boxes.", "Duplicate detections can exaggerate the amount of damage."],
+                ["Background errors", "Shadows, lane markings, and stains are mostly ignored.", "Road imagery contains many crack-like distractors."],
+            ],
+            [1.35 * inch, 2.75 * inch, 2.4 * inch],
+        )
+    )
     story.append(image_flowable(selected_dir / "val_batch0_pred.jpg", "Figure 11. Validation prediction batch 0 for version-1/run-6.", max_height=5.25 * inch))
 
     section(story, "More Visual Evidence From The Selected Run")
@@ -829,6 +1103,17 @@ def build_story():
             "The second validation batch gives another qualitative check. In technical evaluation, this type of visual review is important because it can "
             "reveal problems that metrics hide, such as duplicated boxes, boxes around shadows, or labels that are correct numerically but not useful for "
             "human inspection."
+        )
+    )
+    story.append(
+        styled_table(
+            [
+                ["Question for review", "How the validation image helps answer it"],
+                ["Are all four classes visually plausible?", "The batch shows crack-like regions with class labels, allowing a human reader to compare label names against road orientation and shape."],
+                ["Does the model react to real road context?", "The examples include lanes, vehicles, buildings, bright sky, and shadows rather than isolated crack crops."],
+                ["Does confidence remain interpretable?", "Confidence values appear beside boxes, so the reader can see which predictions are strong and which are borderline."],
+            ],
+            [1.75 * inch, 4.75 * inch],
         )
     )
     story.append(image_flowable(selected_dir / "val_batch1_pred.jpg", "Figure 12. Validation prediction batch 1 for version-1/run-6.", max_height=5.25 * inch))
@@ -856,6 +1141,70 @@ def build_story():
     story.append(Spacer(1, 6))
     story.append(image_flowable(ROOT / "versions" / "version-2" / "run-1" / "detect" / "train" / "results.png", "Figure 13. Training curves for version-2/run-1.", max_height=2.85 * inch))
     story.append(image_flowable(ROOT / "versions" / "version-3" / "run-1" / "detect" / "train" / "results.png", "Figure 14. Training curves for version-3/run-1.", max_height=2.85 * inch))
+
+    section(story, "Qualitative Comparison Across Versions")
+    story.append(
+        para(
+            "The version archive also includes validation prediction images. These images are important because two models can have similar metrics while "
+            "producing different visual behavior. A model may draw boxes that are too loose, miss small cracks, duplicate detections, or label a borderline "
+            "crack type differently. The examples below use held-out validation batches from different runs to support the metric-based discussion."
+        )
+    )
+    story.append(
+        image_grid(
+            [
+                (ROOT / "versions" / "version-1" / "run-1" / "detect" / "train" / "val_batch0_pred.jpg", "version-1/run-1 validation predictions"),
+                (ROOT / "versions" / "version-1" / "run-6" / "detect" / "train" / "val_batch0_pred.jpg", "version-1/run-6 validation predictions"),
+                (ROOT / "versions" / "version-2" / "run-1" / "detect" / "train" / "val_batch0_pred.jpg", "version-2/run-1 validation predictions"),
+                (ROOT / "versions" / "version-3" / "run-1" / "detect" / "train" / "val_batch0_pred.jpg", "version-3/run-1 validation predictions"),
+            ],
+            max_height=1.95 * inch,
+        )
+    )
+    story.append(
+        para(
+            "The comparison supports the final selection because version-1/run-6 produces readable boxes while keeping the model size moderate. The other "
+            "runs remain valuable evidence: run-1 explains the high-mAP option, version-2 shows a different dataset split with strong precision, and "
+            "version-3 shows how a larger model can remain competitive without becoming the best practical choice."
+        )
+    )
+    story.append(
+        image_grid(
+            [
+                (ROOT / "versions" / "version-1" / "run-6" / "detect" / "train" / "train_batch0.jpg", "Selected run training batch example"),
+                (ROOT / "versions" / "version-1" / "run-6" / "detect" / "train" / "val_batch2_pred.jpg", "Selected run validation batch 2 predictions"),
+            ],
+            max_height=2.25 * inch,
+        )
+    )
+
+    section(story, "From Detection Output To Maintenance Insight")
+    story.append(
+        para(
+            "The model output is a set of labels, boxes, and confidence scores. For a road-maintenance workflow, those raw predictions become useful when "
+            "they are interpreted as maintenance signals. A pothole with high confidence is usually more immediately actionable than a low-confidence thin "
+            "crack. An alligator-crack pattern may suggest fatigue distress, while a transverse crack may suggest water-entry risk or thermal movement."
+        )
+    )
+    story.append(
+        styled_table(
+            [
+                ["Detected type", "Typical interpretation", "Useful follow-up measurement"],
+                ["Alligator Crack", "Possible fatigue or structural distress.", "Crack density, affected area, and repeated occurrence along a segment."],
+                ["Longitudinal Crack", "Possible joint, lane-edge, or wheel-path distress.", "Length, lane position, and whether the crack is widening."],
+                ["Pothole", "Localized missing surface material with direct safety impact.", "Area, depth if available, and proximity to wheel path."],
+                ["Transverse Crack", "Cross-road cracking that can admit water.", "Length, spacing between cracks, and edge deterioration."],
+            ],
+            [1.3 * inch, 2.55 * inch, 2.65 * inch],
+        )
+    )
+    story.append(
+        para(
+            "This is also why confidence scores should not be treated as severity scores. Confidence means the model believes the object is present and "
+            "classified correctly. Severity requires additional information such as crack width, depth, density, road location, traffic volume, and whether "
+            "the same distress appears repeatedly over time."
+        )
+    )
 
     section(story, "Reference Lessons Applied To This Project")
     story.append(
