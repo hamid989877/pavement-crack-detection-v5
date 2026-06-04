@@ -1,45 +1,45 @@
----
-title: Pavement Crack Detection V5
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Pavement Crack Detection V5
 
-A small website for presenting a trained YOLO project and running detections with a custom `best.pt` model.
+A website and FastAPI backend for running pavement crack detection with a trained YOLO model.
 
-## Live Website
+## Project Locations
 
-[Open the full detection app on Hugging Face Spaces](https://hamid989877-pavement-crack-detection-v5.hf.space)
+- Website and backend code: [GitHub repository](https://github.com/hamid989877/pavement-crack-detection-v5)
+- Static website preview: [GitHub Pages](https://hamid989877.github.io/pavement-crack-detection-v5/)
+- YOLO model only: [Hugging Face model repository](https://huggingface.co/hamid989877/pavement-crack-detection-v5-model)
 
 ## Pages
 
-- Project page with project details and an animated detection preview.
+- Home page with project details.
 - Image detection page for uploading an image and viewing annotated results.
-- Video detection page for uploading a video and receiving a processed video.
+- Video detection page for uploading a video, viewing live processing, and receiving a detection log.
 
 ## Setup
 
-1. Put your YOLO model at:
-
-   ```text
-   model/best.pt
-   ```
-
-   You can also keep the model somewhere else and set `YOLO_MODEL_PATH`.
-
-2. Create and activate a Python environment.
+1. Create and activate a Python environment.
 
    ```powershell
    py -3 -m venv .venv
    .\.venv\Scripts\Activate.ps1
    ```
 
-3. Install dependencies.
+2. Install dependencies.
 
    ```powershell
    pip install -r requirements.txt
+   ```
+
+3. Download the model from Hugging Face.
+
+   ```powershell
+   pip install -U huggingface_hub
+   hf download hamid989877/pavement-crack-detection-v5-model best.pt --local-dir model
+   ```
+
+   The model should be available at:
+
+   ```text
+   model/best.pt
    ```
 
 4. Start the website.
@@ -56,17 +56,8 @@ A small website for presenting a trained YOLO project and running detections wit
 
 ## Notes
 
+- GitHub stores the website and backend source.
+- Hugging Face stores the YOLO model file.
 - Generated videos are written to `outputs/`.
-- Model files are ignored by normal git because `.pt` files can be large. Use Git LFS for Hugging Face Spaces.
 - The API loads the model once and reuses it for image and video requests.
-- GitHub Pages deploys the static UI preview from `static/`. The upload controls need the Python backend to run real YOLO detection.
-
-## Hugging Face Spaces
-
-This project is ready for a Docker Space. The Space must include the model file at:
-
-```text
-model/best.pt
-```
-
-The app runs on port `7860`, which is the default port used by Docker Spaces.
+- GitHub Pages is a static UI preview. Real YOLO detection needs the Python backend running locally or on a backend host.
