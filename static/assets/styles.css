@@ -130,14 +130,14 @@ select {
   padding: clamp(48px, 7vw, 96px) clamp(18px, 4vw, 64px) 42px;
 }
 
-.hero-video-bg,
+.hero-image-bg,
 .hero-video-shade {
   position: absolute;
   inset: 0;
   z-index: -2;
 }
 
-.hero-video-bg {
+.hero-image-bg {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -146,8 +146,8 @@ select {
 .hero-video-shade {
   z-index: -1;
   background:
-    linear-gradient(90deg, rgba(29, 31, 32, 0.94), rgba(51, 51, 51, 0.74) 44%, rgba(29, 31, 32, 0.36)),
-    linear-gradient(0deg, rgba(29, 31, 32, 0.92), rgba(29, 31, 32, 0.28) 38%, rgba(29, 31, 32, 0.7));
+    linear-gradient(90deg, rgba(29, 31, 32, 0.94), rgba(51, 51, 51, 0.72) 44%, rgba(29, 31, 32, 0.24)),
+    linear-gradient(0deg, rgba(29, 31, 32, 0.92), rgba(29, 31, 32, 0.24) 38%, rgba(29, 31, 32, 0.62));
 }
 
 .hero-copy {
