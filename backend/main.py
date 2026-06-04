@@ -15,8 +15,10 @@ from typing import Any
 import cv2
 import numpy as np
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
+from huggingface_hub import hf_hub_download
 
 try:
     from ultralytics import YOLO
@@ -28,6 +30,16 @@ ROOT_DIR = Path(__file__).resolve().parents[1]
 STATIC_DIR = ROOT_DIR / "static"
 OUTPUT_DIR = ROOT_DIR / "outputs"
 MODEL_PATH = Path(os.getenv("YOLO_MODEL_PATH", ROOT_DIR / "model" / "best.pt"))
+MODEL_REPO_ID = os.getenv("YOLO_MODEL_REPO_ID", "hamid989877/pavement-crack-detection-v5-model")
+MODEL_FILENAME = os.getenv("YOLO_MODEL_FILENAME", "best.pt")
+CORS_ALLOW_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOW_ORIGINS",
+        "https://hamid989877.github.io,http://localhost:8000,http://127.0.0.1:8000",
+    ).split(",")
+    if origin.strip()
+]
 
 IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/bmp"}
 VIDEO_TYPES = {
@@ -44,6 +56,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ALLOW_ORIGINS,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
 app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
@@ -51,6 +70,32 @@ app.mount("/outputs", StaticFiles(directory=OUTPUT_DIR), name="outputs")
 VIDEO_JOBS: dict[str, dict[str, Any]] = {}
 VIDEO_JOBS_LOCK = threading.Lock()
 VIDEO_DETECTION_EVENT_LIMIT = 5000
+
+
+def ensure_model_file() -> Path:
+    if MODEL_PATH.exists():
+        return MODEL_PATH
+
+    if not MODEL_REPO_ID:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Model file not found at {MODEL_PATH}. Set YOLO_MODEL_REPO_ID or provide best.pt.",
+        )
+
+    try:
+        MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+        downloaded = hf_hub_download(
+            repo_id=MODEL_REPO_ID,
+            filename=MODEL_FILENAME,
+            local_dir=str(MODEL_PATH.parent),
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Could not download model from Hugging Face repo {MODEL_REPO_ID}: {exc}",
+        ) from exc
+
+    return Path(downloaded)
 
 
 @lru_cache(maxsize=1)
@@ -61,13 +106,7 @@ def load_model() -> Any:
             detail="Ultralytics is not installed. Run: pip install -r requirements.txt",
         )
 
-    if not MODEL_PATH.exists():
-        raise HTTPException(
-            status_code=503,
-            detail=f"Model file not found at {MODEL_PATH}. Put best.pt in the model folder or set YOLO_MODEL_PATH.",
-        )
-
-    return YOLO(str(MODEL_PATH))
+    return YOLO(str(ensure_model_file()))
 
 
 def page_response(page: str) -> FileResponse:
@@ -404,6 +443,7 @@ def health() -> dict[str, Any]:
     return {
         "status": "ok",
         "model_path": str(MODEL_PATH),
+        "model_repo_id": MODEL_REPO_ID,
         "model_found": MODEL_PATH.exists(),
     }
 

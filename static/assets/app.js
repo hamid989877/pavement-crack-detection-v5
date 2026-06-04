@@ -1,4 +1,15 @@
 const qs = (selector, root = document) => root.querySelector(selector);
+const DEFAULT_API_BASE_URL = "https://hamid989877-pavement-crack-detection-v5-backend.hf.space";
+const API_BASE_URL = (
+  window.PCD_API_BASE_URL ||
+  (isPagesPreview() ? DEFAULT_API_BASE_URL : "")
+).replace(/\/$/, "");
+
+function apiUrl(path) {
+  if (/^https?:\/\//i.test(path)) return path;
+  if (!API_BASE_URL) return path;
+  return `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+}
 
 function bindRange(inputId, outputId) {
   const input = qs(`#${inputId}`);
@@ -195,10 +206,7 @@ function setupImageForm() {
     showMessage(message, "Running your model on the image...");
 
     try {
-      if (isPagesPreview()) {
-        throw new Error("GitHub Pages is a visual preview. Run the Python backend locally for YOLO detection.");
-      }
-      const response = await fetch(`/api/detect/image?conf=${conf}&imgsz=${imgsz}`, {
+      const response = await fetch(apiUrl(`/api/detect/image?conf=${conf}&imgsz=${imgsz}`), {
         method: "POST",
         body: formData,
       });
@@ -262,7 +270,7 @@ function setupVideoForm() {
   }
 
   async function pollVideoJob(statusUrl) {
-    const response = await fetch(statusUrl);
+    const response = await fetch(apiUrl(statusUrl));
     if (!response.ok) throw new Error(await apiError(response));
     const payload = await response.json();
     updateVideoMetrics(payload);
@@ -270,9 +278,10 @@ function setupVideoForm() {
     if (payload.status === "completed") {
       clearPoll();
       preview.classList.remove("empty");
-      preview.innerHTML = `<video controls src="${payload.video_url}?t=${Date.now()}"></video>`;
+      const videoUrl = apiUrl(payload.video_url);
+      preview.innerHTML = `<video controls src="${videoUrl}?t=${Date.now()}"></video>`;
       if (download && actions) {
-        download.href = payload.video_url;
+        download.href = videoUrl;
         actions.hidden = false;
       }
       showMessage(message, "Detection complete. The saved video is ready.", "success");
@@ -320,11 +329,8 @@ function setupVideoForm() {
     showMessage(message, "Uploading video and starting live detection...");
 
     try {
-      if (isPagesPreview()) {
-        throw new Error("GitHub Pages is a visual preview. Run the Python backend locally for YOLO detection.");
-      }
       const response = await fetch(
-        `/api/detect/video?conf=${conf}&imgsz=${imgsz}&max_frames=${maxFrames}&frame_stride=${frameStride}`,
+        apiUrl(`/api/detect/video?conf=${conf}&imgsz=${imgsz}&max_frames=${maxFrames}&frame_stride=${frameStride}`),
         {
           method: "POST",
           body: formData,
@@ -334,7 +340,7 @@ function setupVideoForm() {
       const payload = await response.json();
 
       preview.classList.remove("empty");
-      preview.innerHTML = `<img class="stream-frame" src="${payload.stream_url}?t=${Date.now()}" alt="Live detection stream">`;
+      preview.innerHTML = `<img class="stream-frame" src="${apiUrl(payload.stream_url)}?t=${Date.now()}" alt="Live detection stream">`;
       updateVideoMetrics({ ...payload, progress: 0 });
       showMessage(message, "Live detection started. The final video will be saved automatically.");
       pollTimer = window.setInterval(() => {

@@ -10,7 +10,8 @@ The repository is intentionally split across two platforms:
 ## Links
 
 - GitHub repository: [hamid989877/pavement-crack-detection-v5](https://github.com/hamid989877/pavement-crack-detection-v5)
-- Static GitHub Pages preview: [pavement-crack-detection-v5](https://hamid989877.github.io/pavement-crack-detection-v5/)
+- GitHub Pages app: [pavement-crack-detection-v5](https://hamid989877.github.io/pavement-crack-detection-v5/)
+- Hugging Face backend Space: [pavement-crack-detection-v5-backend](https://hamid989877-pavement-crack-detection-v5-backend.hf.space)
 - Hugging Face model repository: [pavement-crack-detection-v5-model](https://huggingface.co/hamid989877/pavement-crack-detection-v5-model)
 - Final project report: [reports/Pavement_Crack_Detection_Final_Project_Report.pdf](reports/Pavement_Crack_Detection_Final_Project_Report.pdf)
 
@@ -40,7 +41,7 @@ The model classes used by the app are:
 2. Each version contains one or more YOLO training runs with configuration files, result CSVs, validation images, plots, and confusion matrices.
 3. Large model checkpoints (`best.pt` and `last.pt`) were moved to Hugging Face under versioned paths.
 4. Non-model training artifacts were added to GitHub under `versions/` so the project history can be reviewed without storing huge checkpoints in Git.
-5. A FastAPI backend was created to load `model/best.pt` once and reuse it for image and video inference.
+5. A FastAPI backend was deployed as a Hugging Face Space and downloads the active `best.pt` from the Hugging Face model repository.
 6. Static HTML, CSS, and JavaScript pages were added for the home page, image upload workflow, and video upload workflow.
 7. Video inference was upgraded from a long blocking request to a background job with progress polling, live MJPEG preview, saved output video, and a detection-detail table.
 8. The UI was styled around an asphalt/crack color palette using dark gray, amber/yellow highlights, white text, and red error states.
@@ -107,6 +108,12 @@ versions/version-3/run-1/detect/train/weights/
 
 ## API Overview
 
+Hosted backend:
+
+```text
+https://hamid989877-pavement-crack-detection-v5-backend.hf.space
+```
+
 | Endpoint | Method | Purpose |
 |---|---|---|
 | `/health` | GET | Confirms the backend is running and the model file exists |
@@ -117,6 +124,6 @@ versions/version-3/run-1/detect/train/weights/
 
 ## Notes
 
-- GitHub Pages is a static preview, so upload detection does not run there by itself.
-- Real detection requires the FastAPI backend and the Hugging Face model weights.
+- The GitHub Pages app sends image and video uploads to the Hugging Face backend Space for real YOLO inference.
+- The first detection after the Space sleeps can be slower because the backend may need to wake up and load the model.
 - Large model formats are ignored by `.gitignore` and should stay in Hugging Face.

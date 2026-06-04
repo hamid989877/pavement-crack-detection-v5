@@ -17,10 +17,9 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY backend ./backend
 COPY static ./static
-COPY model ./model
 
-RUN mkdir -p outputs /tmp/ultralytics \
-    && chmod -R 777 outputs /tmp/ultralytics
+RUN mkdir -p model outputs /tmp/ultralytics \
+    && chmod -R 777 model outputs /tmp/ultralytics
 
 EXPOSE 7860
 
